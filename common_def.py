@@ -17,11 +17,8 @@ class PyTorchMLP(torch.nn.Module):
         hidden_layers = []
         for hidden_unit in hidden_units:
             hidden_layers.append(torch.nn.Linear(num_features, hidden_unit))
-            # batch normalization: why it works?
             hidden_layers.append(torch.nn.BatchNorm1d(hidden_unit))
-            # activation function
             hidden_layers.append(torch.nn.ReLU())
-            # DROPOUT: why it works?
             # hidden_layers.append(torch.nn.Dropout(0.2))
             
             num_features = hidden_unit
@@ -68,29 +65,29 @@ class LightningModel(lightning.LightningModule):
         return self.torch_model(x)
     
     def _process_step(self, batch, batch_idx):
-        batch_features, batch_labels = batch
-        logits = self.forward(batch_features)
-        loss = F.cross_entropy(logits, batch_labels)
-        predictions = torch.argmax(logits, dim=1)
-        return loss, predictions, batch_labels
+        X_features, y_labels = batch
+        logits = self.forward(X_features)
+        loss = F.cross_entropy(logits, y_labels)
+        y_preds = torch.argmax(logits, dim=1)
+        return loss, y_preds, y_labels
     
     def training_step(self, batch, batch_idx):
-        loss, predictions, labels = self._process_step(batch, batch_idx)
+        loss, y_preds, y_labels = self._process_step(batch, batch_idx)
         self.log("train_loss", loss)
-        self.train_acc(predictions, labels)
+        self.train_acc(y_preds, y_labels)
         self.log('train_acc', self.train_acc, prog_bar=True, on_epoch=True, on_step=False)
         return loss
     
     def validation_step(self, batch, batch_idx):
-        loss, predictions, labels = self._process_step(batch, batch_idx)
+        loss, y_preds, y_labels = self._process_step(batch, batch_idx)
         self.log("val_loss", loss)
-        self.val_acc(predictions, labels)
+        self.val_acc(y_preds, y_labels)
         self.log('val_acc', self.val_acc, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
-        loss, predictions, labels = self._process_step(batch, batch_idx)
+        loss, y_preds, y_labels = self._process_step(batch, batch_idx)
         self.log("test_loss", loss)
-        self.val_acc(predictions, labels)
+        self.val_acc(y_preds, y_labels)
         self.log('test_acc', self.val_acc, prog_bar=True)
 
     
