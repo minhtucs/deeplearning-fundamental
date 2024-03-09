@@ -172,3 +172,10 @@ def plot_metrics_from_csv_log(path):
     df_metrics_aggr[['train_loss', 'val_loss']].plot(grid=True, legend=True, xlabel='Epoch', ylabel='Loss')
     df_metrics_aggr[['train_acc', 'val_acc']].plot(grid=True, legend=True, xlabel='Epoch', ylabel='Accuracy')
     plt.show()
+
+class AugumentedImages:
+    def __init__(self, transform):
+        self.transform = transform
+
+    def __call__(self, image):
+        return [self.transform(image), self.transform(image)]
