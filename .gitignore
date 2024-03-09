@@ -1,4 +1,5 @@
-dataset
+dataset/cifar-10
+dataset/mnist
 __pycache__
 lightning_logs
 checkpoints
